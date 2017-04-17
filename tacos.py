@@ -1,7 +1,7 @@
 from __future__ import print_function
 import time,requests, bs4, smtplib, schedule
 
-# using python3
+# using python
 
 # function that takes in a format of W10-5 or L7-6 and returns the correct score
 def rockies_score(wlscore):
