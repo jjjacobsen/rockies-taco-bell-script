@@ -11,7 +11,5 @@ these are just general notes on my process building this script
 	-git push origin <branch name> (origin is remote repository url, run after commit to update remote repository)
 	-git pull origin <branch name> (grab's whatever is on remote repository and updates local branch)
 	-git log (shows log of recent commits)
--im gonna use one of these two sites to pull from: http://colorado.rockies.mlb.com/schedule/?c_id=col#y=2017&m=4&calendar=DEFAULT, http://www.espn.com/mlb/team/schedule/_/name/col
--dont think running this script on a work server is gonna fly, need to host somewhere else
--add Alec's email if he wants
+-scraping from this site: http://www.espn.com/mlb/team/schedule/_/name/col
 

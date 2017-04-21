@@ -1,9 +1,8 @@
-from __future__ import print_function
-import time,requests, bs4, smtplib, schedule
+import time, requests, bs4, smtplib
 
-# using python
+# using python3
 
-# function that takes in a format of W10-5 or L7-6 and returns the correct score
+# function that takes in a format of W10-5 or L7-6 and returns the rockies score
 def rockies_score(wlscore):
     if(wlscore[0] == "W"):
         tmpstr = ""
@@ -21,64 +20,53 @@ def rockies_score(wlscore):
             tmpstr += wlscore[x]
         return int(tmpstr)
 
-# this will convert a format of Wed, Apr 12 into 04/12/2017
-def date_format(textDate):
-    strday = ""
-    for x in range (9,len(textDate)):
-        strday += textDate[x]
-    if(len(strday) == 1):
-        strday = "0" + strday
-    strmon = ""
-    for x in range(5,8):
-        strmon += textDate[x]
-    if(strmon == "Jan"):
-        strmon = "01"
-    elif(strmon == "Feb"):
-        strmon = "02"
-    elif(strmon == "Mar"):
-        strmon = "03"
-    elif(strmon == "Apr"):
-        strmon = "04"
-    elif(strmon == "May"):
-        strmon = "05"
-    elif(strmon == "Jun"):
-        strmon = "06"
-    elif(strmon == "Jul"):
-        strmon = "07"
-    elif(strmon == "Aug"):
-        strmon = "08"
-    elif(strmon == "Sep"):
-        strmon = "09"
-    elif(strmon == "Oct"):
-        strmon = "10"
-    elif(strmon == "Nov"):
-        strmon = "11"
-    elif(strmon == "Dec"):
-        strmon = "12"
-    stryear = time.strftime("%Y")
-    return strmon + '/' + strday + '/' + stryear
-
-# will take in a str 04/14/2017 and see if that was yesterdays date
-def yesterdays_game(textDate):
-    day = int(textDate[3] + textDate[4])
-    if(day == 1):
-        # gotta check last day of last month...
-        # do this by an if statement with many or clauses
-        pass
+# given input of Mon, Apr 5 will return 1 if that was yesterday, 0 if not
+def yesterdays_game(gameDate):
+    # bs4 encodes as unicode so I have to cast to str here
+    words = str(gameDate).split()
+    gameday = int(words[2])
+    currday = int(time.strftime("%d"))
+    strmon = words[1]
+    # handle end of month case
+    if(currday == gameday+1):
+        return 1
     else:
-        one = ""
-        two = ""
-        nextDay = day+1
-        tmp = str(nextDay)
-        for x in range(0, 2):
-            one += textDate[x]
-        for x in range(6,len(textDate)):
-            two += textDate[x]
-        tmp = one + '/' + tmp + '/' + two
-        if(tmp == time.strftime("%m/%d/%Y")):
-            return 1
-        else:
-            return 0
+        if(currday == 1):
+            # handle end of month case
+            if(strmon == "Feb"):
+                # 28 day month unless leap year
+                intyear = time.strftime("%Y")
+                if(intyear % 4 == 0):
+                    # leap year
+                    # this is not a perfect solution, there is a small error
+                    # but the next time an exception happens is on the year 2100
+                    if(gameday == 29):
+                        return 1
+                else:
+                    if(gameday == 28):
+                        return 1
+            elif(strmon == "Apr" or strmon == "Jun" or strmon == "Sep" or strmon == "Nov"):
+                # 30 day month
+                if(gameday == 30):
+                    return 1
+            else:
+                # 31 day month
+                if(gameday == 31):
+                    return 1
+        return 0
+
+# sends email to me, rockytacos44 is a throwaway email account so no worries
+def send_email(score):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login("rockytacos44@gmail.com", "default123")
+    msg = ""
+    if(score >= 7):
+        msg = "AYYY, TODAY YOU GET CHEAP TACOS"
+    else:
+        msg = "the rockies only scored " + str(score) + " points"
+    server.sendmail("rockytacos44@gmail.com", "jonah.jacobsen@colorado.edu", msg)
+    server.quit()
 
 def check():
     # create the "soup"
@@ -89,37 +77,18 @@ def check():
     # parse the raw HTML for the list entries with class=score and store in array
     scores = soup.find_all("li", class_="score")
 
-    # loop through scores and build the array of W/L + score and dates
-    datearr = []
-    wlscorearr = []
-    for score in scores:
-        wlscorearr.append(score.parent.getText())
-        tmp = score.parent.parent.parent.findChildren()
-        datearr.append(tmp[0].getText())
+    # run functions to get the score from rockies last game as int
+    score = rockies_score(scores[-1].parent.getText())
 
-    # checks if the last game played was yesterday
-    if(yesterdays_game(date_format(datearr[-1]))):
-        # checks if the rockies scored 7 or more points
-        if(rockies_score(wlscorearr[-1]) >= 7):
-            # send email
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login("rockytacos44@gmail.com", "default123")
-            msg = "AYYY, YOU JUST GOT CHEAP TACOS"
-            server.sendmail("rockytacos44@gmail.com", "jonah.jacobsen@colorado.edu", msg)
-            server.quit()
-        else:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login("rockytacos44@gmail.com", "default123")
-            msg = "the rockies only scored " + str(rockies_score(wlscorearr[-1])) + " points"
-            server.sendmail("rockytacos44@gmail.com", "jonah.jacobsen@colorado.edu", msg)
-            server.quit()
+    # run functions to get date of last rockies game
+    date = scores[-1].parent.parent.parent.findChildren()[0].getText()
+
+    # check to see if rockies played yesterday
+    if(yesterdays_game(date)):
+        # when I am confident the script works right, I will change the
+        # send_email function and add an if statment here for score >= 7
+        send_email(score)
 
 check()
 
-schedule.every().day.at("10:00").do(check)
-
-while(1):
-    schedule.run_pending()
-    time.sleep(1)
+# want to implement CRON scheduler so that I don't busy wait on CPU
