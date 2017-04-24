@@ -60,11 +60,7 @@ def send_email(score):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login("rockytacos44@gmail.com", "default123")
-    msg = ""
-    if(score >= 7):
-        msg = "AYYY, TODAY YOU GET CHEAP TACOS"
-    else:
-        msg = "the rockies only scored " + str(score) + " points"
+    msg = "AYYY, TODAY YOU GET CHEAP TACOS"
     server.sendmail("rockytacos44@gmail.com", "jonah.jacobsen@colorado.edu", msg)
     server.quit()
 
@@ -85,9 +81,9 @@ def check():
 
     # check to see if rockies played yesterday
     if(yesterdays_game(date)):
-        # when I am confident the script works right, I will change the
-        # send_email function and add an if statment here for score >= 7
-        send_email(score)
+        # if score is higher than seven, then send me an email)
+        if(score >= 7):
+            send_email(score)
 
 check()
 
