@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import time, requests, bs4, smtplib
 
 # using python3

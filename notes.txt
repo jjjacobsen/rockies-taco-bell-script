@@ -12,4 +12,6 @@ these are just general notes on my process building this script
 	-git pull origin <branch name> (grab's whatever is on remote repository and updates local branch)
 	-git log (shows log of recent commits)
 -scraping from this site: http://www.espn.com/mlb/team/schedule/_/name/col
+-add a shebang and give execute access to run as script from shell
+-use cron to schedule this
 
