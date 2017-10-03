@@ -61,7 +61,7 @@ def yesterdays_game(gameDate):
 def send_email(score):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login("rockytacos44@gmail.com", "default123")
+    server.login("rockytacos44@gmail.com", "(password here, figure out how to upload this to git without plaintext)"
     msg = "AYYY, TODAY YOU GET CHEAP TACOS"
     server.sendmail("rockytacos44@gmail.com", "jonah.jacobsen@colorado.edu", msg)
     server.quit()
